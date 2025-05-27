@@ -25,6 +25,12 @@ int main()
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(screenWidth, screenHeight, "2DSurvival");
 
+    Camera2D camera = { 0 };
+    camera.target = playerPosition;
+    camera.offset = { screenWidth / 2.0f, screenHeight / 2.0f };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
     while (!WindowShouldClose())
     {
         float deltaTime = GetFrameTime();
@@ -32,11 +38,15 @@ int main()
 
         Vector2 moveDirection = getMoveDirection();
         playerPosition = setPlayerPosition(playerPosition, moveDirection, playerSpeed, deltaTime);
+        camera.target = playerPosition;
 
         BeginDrawing();
             ClearBackground(DARKGREEN);
             
-            movePlayer(playerPosition); 
+            BeginMode2D(camera);
+                movePlayer(playerPosition); 
+            EndMode2D();
+            
 
             handleDayNightCycle(currentTime);
 
@@ -53,7 +63,7 @@ void handleDayNightCycle(double currentTime)
 {
     double time = fmod(currentTime, 24);
 
-    if (time >= 20 && time <= 22) // DUSK
+    if (time >= 20 && time < 22) // DUSK
     {
         int initialOpacity = 0;
         int finalOpacity = 200;
@@ -70,7 +80,7 @@ void handleDayNightCycle(double currentTime)
         DrawRectangle(0, 0, screenWidth, screenHeight, NIGHTTIME);
     }
 
-    if (time >= 4 && time <= 6) // DAWN
+    if (time >= 4 && time < 6) // DAWN
     {
         int initialOpacity = 200;
         int finalOpacity = 0;
